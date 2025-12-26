@@ -23,6 +23,7 @@ class PipUpService : Service(), WebServer.Handler {
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private var mOverlay: FrameLayout? = null
     private var mPopup: PopupView? = null
+    private var mPopupProps: PopupProps? = null
     private lateinit var mWebServer: WebServer
 
     override fun onCreate() {
@@ -81,6 +82,7 @@ class PipUpService : Service(), WebServer.Handler {
         mHandler.removeCallbacksAndMessages(null)
         mPopup?.destroy()
         mPopup = null
+	mPopupProps = null
         mOverlay?.let { overlay ->
             overlay.removeAllViews()
             val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -129,11 +131,16 @@ class PipUpService : Service(), WebServer.Handler {
     private fun createPopup(popup: PopupProps) {
         try {
             Log.d(LOG_TAG, "Create popup: $popup")
-            removePopup()
-            createOverlay()
-            mPopup = inflatePopupView(popup)
-            positionPopup(mPopup!!, popup)
-            mHandler.postDelayed({ removePopup() }, (popup.duration * 1000).toLong())
+            if (mPopupProps == popup) {
+		mHandler.removeCallbacksAndMessages(mPopupProps)
+	    } else {
+		removePopup()
+            	createOverlay()
+            	mPopup = inflatePopupView(popup)
+	    	mPopupProps = popup
+            	positionPopup(mPopup!!, popup)
+	    }
+            mHandler.postDelayed({ removePopup() }, mPopupProps, (popup.duration * 1000).toLong())
         } catch (ex: Throwable) {
             ex.printStackTrace()
         }

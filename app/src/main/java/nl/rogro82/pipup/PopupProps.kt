@@ -13,6 +13,7 @@ data class PopupProps(
     val message: String? = null,
     val messageSize: Float = DEFAULT_MESSAGE_SIZE,
     val messageColor: String = DEFAULT_MESSAGE_COLOR,
+    val messageIcon: String? = null,
     val media: Media? = null
 ) {
     @JsonTypeInfo(
@@ -30,12 +31,12 @@ data class PopupProps(
         data class Bitmap(val image: android.graphics.Bitmap, val width: Int = DEFAULT_MEDIA_WIDTH): Media()
     }
 
-    enum class Position {
-        TopRight,
-        TopLeft,
-        BottomRight,
-        BottomLeft,
-        Center
+    enum class Position(index: Int) {
+        TopRight(0),
+        TopLeft(1),
+        BottomRight(2),
+        BottomLeft(3),
+        Center(4)
     }
 
     companion object {

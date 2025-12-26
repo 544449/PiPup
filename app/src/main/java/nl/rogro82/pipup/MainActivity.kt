@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -33,12 +34,21 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         //Ask permission to draw over other apps
         if (!Settings.canDrawOverlays(this)) {
-            askPermission()
+            askPermission();
         }
         // start service in foreground
 
         val textViewConnection = findViewById<TextView>(R.id.textViewServerAddress)
         val textViewServerAddress = findViewById<TextView>(R.id.textViewServerAddress)
+        val textViewVersion = findViewById<TextView>(R.id.textViewVersion)
+
+        textViewVersion.apply {
+            visibility = View.VISIBLE
+            text = resources.getString(
+                R.string.version_number,
+                BuildConfig.VERSION_NAME
+            )
+        }
 
         when(val ipAddress = getIpAddress()) {
             is String -> {
@@ -60,7 +70,11 @@ class MainActivity : Activity() {
 
 
         val serviceIntent = Intent(this, PipUpService::class.java)
-        startForegroundService(serviceIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
     }
 
     private fun askPermission() {
